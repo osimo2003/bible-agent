@@ -1,8 +1,7 @@
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
 venv/
 env/
@@ -11,6 +10,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Database
+*.db
+*.sqlite3
+
 # Environment
 .env
 .env.local
@@ -18,12 +21,17 @@ venv.bak/
 .env.test.local
 .env.production.local
 
-# Database
-*.db
-*.sqlite3
-
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Temp
+tmp/
+temp/

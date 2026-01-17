@@ -35,22 +35,22 @@ class MemoryAgent:
             chapter_start=chapter_start,
             chapter_end=chapter_end,
             completed=True,
-            reading_time_minutes=10  # Default, could be calculated
+            reading_time_minutes=10
         )
         self.db.add(progress)
         
-        # Update user's last chapter
+        
         user = self.db.query(models.User).filter(models.User.id == user_id).first()
         if user:
             user.last_chapter = chapter_end
             user.current_book = book
             user.total_days_engaged += 1
             
-            # Update streak
+            
             today = datetime.utcnow().date()
             yesterday = today - timedelta(days=1)
             
-            # Check if user had progress yesterday
+            
             yesterday_progress = self.db.query(models.UserProgress).filter(
                 models.UserProgress.user_id == user_id,
                 models.UserProgress.date >= yesterday,
@@ -67,7 +67,7 @@ class MemoryAgent:
     
     def add_bookmark(self, user_id: int, verse_ref: str, note: Optional[str] = None) -> models.Bookmark:
         """Save a verse as bookmark"""
-        # Parse verse reference
+        
         import re
         match = re.match(r'([1-3]?\s?[A-Za-z]+)\s+(\d+):(\d+)', verse_ref)
         
@@ -96,8 +96,8 @@ class MemoryAgent:
         if not user:
             return {}
         
-        # Calculate completion percentage
-        total_nt_chapters = 260  # Total NT chapters
+        
+        total_nt_chapters = 260 
         chapters_read = self._calculate_chapters_read(user_id)
         
         return {
@@ -132,7 +132,7 @@ class MemoryAgent:
             message_type=message_type,
             content=content,
             intent=intent,
-            metadata=metadata or {}
+            message_metadata=metadata or {}
         )
         self.db.add(conversation)
         self.db.commit()

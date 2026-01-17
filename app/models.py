@@ -12,17 +12,17 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_active = Column(DateTime(timezone=True), server_default=func.now())
     
-    # Bible study progress
+    
     current_book = Column(String, default="Matthew")
     last_chapter = Column(Integer, default=0)
     total_days_engaged = Column(Integer, default=0)
     current_streak = Column(Integer, default=0)
     preferred_time = Column(String, default="08:00")
     
-    # Preferences
+    
     receive_daily_reminders = Column(Boolean, default=True)
     receive_checkins = Column(Boolean, default=True)
-    study_style = Column(String, default="devotional")  # devotional, study, reflective
+    study_style = Column(String, default="devotional")  
 
 class UserProgress(Base):
     __tablename__ = "user_progress"
@@ -43,9 +43,9 @@ class Bookmark(Base):
     user_id = Column(Integer, index=True)
     book = Column(String)
     chapter = Column(Integer)
-    verse = Column(String)  # Could be "1-3" or "5"
+    verse = Column(String)  
     note = Column(Text, nullable=True)
-    tags = Column(JSON, default=[])  # ["encouragement", "peace", etc.]
+    tags = Column(JSON, default=[]) 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Conversation(Base):
@@ -53,18 +53,17 @@ class Conversation(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
-    message_type = Column(String)  # "user_message", "agent_response"
+    message_type = Column(String) 
     content = Column(Text)
-    intent = Column(String, nullable=True)  # "daily_study", "verse_request", "prayer", etc.
-    metadata = Column(JSON, nullable=True)  # {"verse": "John 3:16", "mood": "anxious"}
+    intent = Column(String, nullable=True) 
+    message_metadata = Column(JSON, nullable=True) 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-
 class Feedback(Base):
     __tablename__ = "feedback"
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
     conversation_id = Column(Integer, nullable=True)
-    rating = Column(Integer)  # 1-5
+    rating = Column(Integer)  
     feedback_text = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

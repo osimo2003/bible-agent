@@ -16,23 +16,23 @@ logger = logging.getLogger(__name__)
 async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
     """Handle incoming WhatsApp messages"""
     
-    # Parse form data
+    
     form_data = await request.form()
     from_number = form_data.get("From", "")
     message_body = form_data.get("Body", "").strip()
     
     logger.info(f"Message from {from_number}: {message_body}")
     
-    # Initialize agents
+    
     planner = PlannerAgent()
     bible_matcher = BibleMatchingAgent()
     memory = MemoryAgent(db)
     composer = ResponseComposerAgent()
     
-    # Get or create user
+    
     user = memory.get_or_create_user(from_number)
     
-    # Save user message
+    
     memory.save_conversation(
         user.id, 
         "user_message", 
@@ -40,16 +40,16 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
         metadata={"phone_number": from_number}
     )
     
-    # Analyze intent
+    
     intent_data = planner.analyze_intent(message_body)
     action = planner.decide_action(intent_data, {"user_id": user.id})
     
-    # Process based on action
+   
     response_text = ""
     
     if action == "bible_matcher":
         if intent_data.get("intent") == "daily_study":
-            # Get daily reading
+            
             reading_data = bible_matcher.get_daily_reading(
                 user.current_book, 
                 user.last_chapter
@@ -59,24 +59,24 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
                 reading_data['chapter_start']
             )
             
-            # Get user stats
+            
             stats = memory.get_user_stats(user.id)
             response_text = composer.compose_daily_reading_response(reading_data, stats)
             
         elif intent_data.get("intent") == "verse_request":
-            # Find verses by topic
+            
             topic = intent_data.get("topic", "encouragement")
             verses = bible_matcher.find_verses_by_topic(topic)
             response_text = composer.compose_verse_response(verses, topic)
     
     elif action == "memory":
         if intent_data.get("intent") == "daily_checkin":
-            # User completed reading
+            
             memory.update_user_progress(
                 user.id,
                 user.current_book,
                 user.last_chapter,
-                user.last_chapter + 2  # Assuming they read 2 chapters
+                user.last_chapter + 2  
             )
             response_text = "✅ Great job completing today's reading!\n\nGod's word is a lamp to your feet. See you tomorrow! 🙏"
         
@@ -96,14 +96,14 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
         if intent_data.get("intent") == "greeting":
             response_text = composer.compose_greeting()
         elif intent_data.get("intent") == "help":
-            response_text = composer.compose_greeting()  # Same as greeting for now
+            response_text = composer.compose_greeting()  
         else:
             response_text = composer.compose_verse_response(
                 bible_matcher.find_verses_by_topic("encouragement"), 
                 "encouragement"
             )
     
-    # Save agent response
+    
     memory.save_conversation(
         user.id,
         "agent_response",
@@ -111,7 +111,7 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
         intent=intent_data.get("intent")
     )
     
-    # Create Twilio response
+    
     twilio_response = MessagingResponse()
     twilio_response.message(response_text)
     
@@ -120,5 +120,5 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
 @router.get("/webhook")
 async def verify_webhook(request: Request):
     """Verify webhook for Twilio"""
-    # Twilio requires GET endpoint for webhook verification
+    
     return {"status": "Webhook is active"}
