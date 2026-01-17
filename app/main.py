@@ -4,24 +4,23 @@ from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
+
 load_dotenv()
 
-# Import routes
+
 from app.routes import whatsapp, users, bible
 from app.database import engine, Base
 from app.agents.scheduler import SchedulerAgent
 from app.database import SessionLocal
 
-# Create tables
+
 Base.metadata.create_all(bind=engine)
 
-# Global scheduler instance
 scheduler = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
+    
     global scheduler
     db = SessionLocal()
     scheduler = SchedulerAgent(db)
@@ -30,13 +29,13 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown
+   
     if scheduler:
         scheduler.shutdown()
     db.close()
     print("👋 Bible Agent stopped")
 
-# Create FastAPI app
+
 app = FastAPI(
     title="Bible Study WhatsApp Agent",
     description="AI-powered Bible study companion on WhatsApp",
@@ -44,7 +43,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -53,7 +52,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routes
 app.include_router(whatsapp.router, prefix="/api/whatsapp", tags=["WhatsApp"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(bible.router, prefix="/api/bible", tags=["Bible"])
