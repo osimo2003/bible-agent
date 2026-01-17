@@ -1,74 +1,44 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+# app/main.py - SIMPLE WORKING VERSION
+from fastapi import FastAPI, Request
+from twilio.twiml.messaging_response import MessagingResponse
 import os
-from dotenv import load_dotenv
 
-
-load_dotenv()
-
-
-from app.routes import whatsapp, users, bible
-from app.database import engine, Base
-from app.agents.scheduler import SchedulerAgent
-from app.database import SessionLocal
-
-
-Base.metadata.create_all(bind=engine)
-
-scheduler = None
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    
-    global scheduler
-    db = SessionLocal()
-    scheduler = SchedulerAgent(db)
-    scheduler.start()
-    print("🚀 Bible Agent started with scheduler")
-    
-    yield
-    
-   
-    if scheduler:
-        scheduler.shutdown()
-    db.close()
-    print("👋 Bible Agent stopped")
-
-
-app = FastAPI(
-    title="Bible Study WhatsApp Agent",
-    description="AI-powered Bible study companion on WhatsApp",
-    version="1.0.0",
-    lifespan=lifespan
-)
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(whatsapp.router, prefix="/api/whatsapp", tags=["WhatsApp"])
-app.include_router(users.router, prefix="/api/users", tags=["Users"])
-app.include_router(bible.router, prefix="/api/bible", tags=["Bible"])
+app = FastAPI()
 
 @app.get("/")
-async def root():
-    return {
-        "message": "Bible Study WhatsApp Agent API",
-        "status": "running",
-        "docs": "/docs",
-        "version": "1.0.0"
-    }
+def home():
+    return {"message": "Bible Agent Running", "status": "ok"}
 
 @app.get("/health")
-async def health_check():
-    return {"status": "healthy", "service": "bible-agent"}
+def health():
+    return {"status": "healthy"}
+
+@app.post("/webhook")
+async def whatsapp_webhook(request: Request):
+    """Handle WhatsApp messages"""
+    try:
+        form_data = await request.form()
+        message = form_data.get("Body", "").strip()
+        
+        response = MessagingResponse()
+        
+        if message.lower() == "hello":
+            response.message("🙏 Hello! Welcome to Bible Agent! Type DAILY for today's reading.")
+        elif "daily" in message.lower():
+            response.message("📖 *DAILY READING*\n\nMatthew 1-2\n\nReflection: What stands out to you?\n\nReply READ when done.")
+        elif "verse" in message.lower():
+            response.message("📖 *ENCOURAGING VERSES*\n\n1. John 3:16\n2. Philippians 4:6-7\n3. Isaiah 41:10\n\nWhich one speaks to you today?")
+        elif "help" in message.lower():
+            response.message("📚 *COMMANDS*\n\nHELLO - Greeting\nDAILY - Today's reading\nVERSE - Bible verses\nHELP - This message")
+        else:
+            response.message("Type HELP to see all commands. God bless! 🙏")
+        
+        return str(response)
+    except Exception as e:
+        response = MessagingResponse()
+        response.message("Sorry, I encountered an error. Please try again.")
+        return str(response)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

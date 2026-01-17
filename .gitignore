@@ -1,7 +1,8 @@
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*.class
+*.so
 .Python
 venv/
 env/
@@ -28,10 +29,5 @@ venv.bak/
 *.swo
 .DS_Store
 
-# Logs
-logs/
-*.log
-
-# Temp
-tmp/
-temp/
+# Python 3.13 specific
+*.python-version
