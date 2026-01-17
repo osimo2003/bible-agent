@@ -1,0 +1,34 @@
+{
+  "verses": [
+    {
+      "book": "Matthew",
+      "chapter": 1,
+      "verse": 1,
+      "text": "The book of the genealogy of Jesus Christ, the son of David, the son of Abraham."
+    },
+    {
+      "book": "Matthew",
+      "chapter": 1,
+      "verse": 2,
+      "text": "Abraham was the father of Isaac, and Isaac the father of Jacob, and Jacob the father of Judah and his brothers."
+    },
+    {
+      "book": "Philippians",
+      "chapter": 4,
+      "verse": 6,
+      "text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God."
+    },
+    {
+      "book": "Philippians",
+      "chapter": 4,
+      "verse": 7,
+      "text": "And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus."
+    },
+    {
+      "book": "Isaiah",
+      "chapter": 41,
+      "verse": 10,
+      "text": "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you; I will uphold you with my righteous right hand."
+    }
+  ]
+}
